@@ -44,6 +44,7 @@
  * @see html.html.twig
  */
 #}
+{{ attach_library('da_vinci/front') }}
 <div class="layout-container">
 
   <nav role="navigation" class="sliding_menu">
@@ -51,15 +52,21 @@
   </nav role="navigation">
 
   <header role="banner" aria-label="{{ 'Site header'|t}}">
+
     {% if page.secondary_menu %}
       {{ page.secondary_menu }}
     {% endif %}
-
+    
     <div class="header_top">
       {{ page.header }}
     </div>
-    
+
     {% if page.highlighted %}
+      <video muted loop autoplay poster="/themes/da_vinci/images/bg_home.jpg" class="fullscreen-bg_video">
+        <source src="/themes/da_vinci/videos/Drupalera80.mp4" type="video/mp4">
+        I'm sorry; your browser doesn't support HTML5 video.
+      </video>
+      <div class="videomask"></div>
       {{ page.highlighted }}
     {% endif %}
     
@@ -87,17 +94,17 @@
     <a id="hover-contact-es" class="hover-contact" href="/contacto"></a>
     <a id="hover-contact-en" class="hover-contact" href="/en/contact"></a>
 
-    {% if page.sidebar_first %}
-      <aside class="layout-sidebar-first" role="complementary">
-        {{ page.sidebar_first }}
-      </aside>
-    {% endif %}
-
     <div class="layout-content">
       {{ page.content }}
     </div>{# /.layout-content #}
     {% if page.page_bottom %}
       {{ page.page_bottom }}
+    {% endif %}
+
+    {% if page.sidebar_first %}
+      <aside class="layout-sidebar-first" role="complementary">
+        {{ page.sidebar_first }}
+      </aside>
     {% endif %}
 
     {% if page.sidebar_second %}
@@ -120,3 +127,63 @@
   {% endif %}
 
 </div>{# /.layout-container #}
+<script type="application/ld+json"> {
+"@context": "http://schema.org",
+"@type": "Organization",
+"url": "http://www.ladrupalera.com",
+"sameAs": [
+"https://twitter.com/ladrupalera",
+"https://www.linkedin.com/company/la-drupalera",
+"https://plus.google.com/+Ladrupalera" 
+],
+"logo": "http://www.ladrupalera.com/sites/all/themes/da_vinci/images/home/misc/logo_drupalera_home_v2.png",
+"contactPoint": [{
+"@type": "ContactPoint",
+"email": "info@emergya.com",
+"telephone": "+34-954-517-577",
+"contactType": "customer service",
+"contactOption": "TollFree",
+"areaServed": "ES",
+"availableLanguage": "Spanish" 
+},{
+"@type": "ContactPoint",
+"email": "info@emergya.com",
+"telephone": "+44-747-680-6134",
+"contactType": "customer service",
+"contactOption": "TollFree",
+"areaServed": "GB",
+"availableLanguage": ["English","Spanish"]
+},{
+"@type": "ContactPoint",
+"email": "info@emergya.com",
+"telephone": "+56-223-486-403",
+"contactType": "customer service",
+"contactOption": "TollFree",
+"areaServed": "CL",
+"availableLanguage": ["Spanish","English"]
+},{
+"@type": "ContactPoint",
+"email": "info@emergya.com",
+"telephone": "+41-792-505-297",
+"contactType": "customer service",
+"contactOption": "TollFree",
+"areaServed": "CH",
+"availableLanguage": "English" 
+}]
+}
+</script>
+
+<script type="application/ld+json"> {
+"@context": "http://schema.org",
+"@type": "WebSite",
+"url": "http://www.ladrupalera.com",
+"name": "La Drupalera",
+"alternateName": "La Drupalera: Consultoría y Desarrollo Web en Drupal",
+"description": "La Drupalera somos una empresa experta en el desarrollo de grandes sitios web con Drupal. Nuestros servicios cubren el desarrollo completo, desde la consultoría y el diseño de la experiencia de usuario al despliegue y soporte posterior",
+"potentialAction": {
+"@type": "SearchAction",
+"target": "http://www.ladrupalera.com/search/node?keys={search_term}",
+"query-input": "required name=search_term" 
+}
+}
+</script>

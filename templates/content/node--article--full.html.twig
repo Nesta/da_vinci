@@ -77,54 +77,26 @@
     'clearfix',
   ]
 %}
+{% set date = node.createdtime|format_date('html_simple') %}
 {{ attach_library('classy/node') }}
-
 <article{{ attributes.addClass(classes) }}>
   <header>
-    <div class="project-backlink restricted-container">
-      {% trans %}<a href="/en/drupal-projects">All customers</a>{% endtrans %}
-    </div>
-    <div class="header-container restricted-container">
-      {{ content.field_project_image_background }}
-      {{ content.field_project_image }}
-      {{ title_prefix }}
-        <h1>{{ label }}</h1>
-      {{ title_suffix }}
-    </div>
-
+    {{ title_prefix }}
+    <h1{{ title_attributes.addClass('node__title') }}>
+      {{ label }}
+    </h1>
+    {{ title_suffix }}
+    <div class="posted_date">{% trans %}Posted{% endtrans %} {{ date }}</div>
   </header>
+  <div class="author_info">
+    <div class="node__meta">
+      {{ author_picture }}
+      <span{{ author_attributes }}>
+      </span>
+      {{ metadata }}
+    </div>
+  </div>
   <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-    <div id="menu-container" class="restricted-container">
-      {% trans %}
-      <ul id="floating_menu" class="floating_menu">
-        <li>
-          <a href="#goal" class="active">Goal</a>
-        </li>
-        <li>
-          <a href="#solution">Solution</a>
-        </li>
-        <li>
-          <a href="#results">Results</a>
-        </li>
-      </ul>
-      {% endtrans %}
-    </div>
-    <div id="goal" class="restricted-container">
-      {{ content.field_project_goal }}
-    </div>
-    <div id="solution">
-      {{ content.field_project_solution }}
-      {{ content.field_project_solution_img }}
-      {{ content.field_project_solution_link }}
-    </div>
-    <div id="results" class="restricted-container">
-      {{ content.field_project_results}}
-    </div>
-    <div id="testimony">
-      {{ content.field_project_testimony_name}}
-      {{ content.field_project_title}}
-      {{ content.field_project_testimony_}}
-    </div>
-    {{ content|without('field_project_image_background','field_project_image','field_project_goal','field_project_solution','field_project_results','field_project_testimony_name','field_project_testimony_','field_project_solution_img', 'field_project_solution_link', 'field_project_title') }}
+    {{ content }}
   </div>
 </article>

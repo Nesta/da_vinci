@@ -44,6 +44,7 @@
  * @see html.html.twig
  */
 #}
+{{ attach_library('da_vinci/services-animation') }}
 <div class="layout-container">
 
   <nav role="navigation" class="sliding_menu">
@@ -58,7 +59,7 @@
     <div class="header_top">
       {{ page.header }}
     </div>
-    
+
     {% if page.highlighted %}
       {{ page.highlighted }}
     {% endif %}
@@ -86,18 +87,17 @@
     <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
     <a id="hover-contact-es" class="hover-contact" href="/contacto"></a>
     <a id="hover-contact-en" class="hover-contact" href="/en/contact"></a>
-
-    {% if page.sidebar_first %}
-      <aside class="layout-sidebar-first" role="complementary">
-        {{ page.sidebar_first }}
-      </aside>
-    {% endif %}
-
     <div class="layout-content">
       {{ page.content }}
     </div>{# /.layout-content #}
     {% if page.page_bottom %}
       {{ page.page_bottom }}
+    {% endif %}
+
+    {% if page.sidebar_first %}
+      <aside class="layout-sidebar-first" role="complementary">
+        {{ page.sidebar_first }}
+      </aside>
     {% endif %}
 
     {% if page.sidebar_second %}

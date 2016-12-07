@@ -77,54 +77,43 @@
     'clearfix',
   ]
 %}
+{% set date = node.createdtime|format_date('html_simple') %}
+{% set PublishedDate = node.createdtime|format_date('html_datetime') %}
+
 {{ attach_library('classy/node') }}
-
 <article{{ attributes.addClass(classes) }}>
+  {{ content.field_image }}
+  {{ content.field_blog_categories }}
   <header>
-    <div class="project-backlink restricted-container">
-      {% trans %}<a href="/en/drupal-projects">All customers</a>{% endtrans %}
-    </div>
-    <div class="header-container restricted-container">
-      {{ content.field_project_image_background }}
-      {{ content.field_project_image }}
-      {{ title_prefix }}
-        <h1>{{ label }}</h1>
-      {{ title_suffix }}
-    </div>
+    <div class="node__meta">
+      <div class="article_author_img">
+        {{ author_picture }}
+      </div>
+      <div property="schema:datePublished" content="{{ PublishedDate }}" class="article_publish_date">{{ date }}</div>
 
+    </div>
   </header>
   <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-    <div id="menu-container" class="restricted-container">
-      {% trans %}
-      <ul id="floating_menu" class="floating_menu">
-        <li>
-          <a href="#goal" class="active">Goal</a>
-        </li>
-        <li>
-          <a href="#solution">Solution</a>
-        </li>
-        <li>
-          <a href="#results">Results</a>
-        </li>
-      </ul>
-      {% endtrans %}
+    {{ title_prefix }}
+    <h2{{ title_attributes.addClass('node__title') }}>
+      <a href="{{url}}"><span property="headline">{{ label }}</span></a>
+    </h2>
+    {{ title_suffix }}
+    {% set conBody %}
+     {{ content.body }}
+    {% endset %}  
+    <div class="field--name-body">{{ conBody|striptags }}</div>
+
+    {{ content|without('field_image', 'field_blog_categories', 'field_tags', 'body') }}
+    <div class="article_link">
+      <a href="{{url}}">{% trans %}Read article{% endtrans %}</a>
     </div>
-    <div id="goal" class="restricted-container">
-      {{ content.field_project_goal }}
-    </div>
-    <div id="solution">
-      {{ content.field_project_solution }}
-      {{ content.field_project_solution_img }}
-      {{ content.field_project_solution_link }}
-    </div>
-    <div id="results" class="restricted-container">
-      {{ content.field_project_results}}
-    </div>
-    <div id="testimony">
-      {{ content.field_project_testimony_name}}
-      {{ content.field_project_title}}
-      {{ content.field_project_testimony_}}
-    </div>
-    {{ content|without('field_project_image_background','field_project_image','field_project_goal','field_project_solution','field_project_results','field_project_testimony_name','field_project_testimony_','field_project_solution_img', 'field_project_solution_link', 'field_project_title') }}
+    <a class="better_hover" href="{{url}}"></a>
   </div>
+  <span property="schema:headline" class="rdf-meta hidden">{{ label }}</span>
+  <span property="schema:dateCreated" content="{{ PublishedDate }}" class="rdf-meta hidden"></span>
+  <span class="rdf-meta hidden" property="publisher">
+      <span property="name">La Drupalera</span>
+  </span>
+  <span property="schema:author" class="rdf-meta hidden">{{ author_name }}</span>
 </article>

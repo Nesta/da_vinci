@@ -16,8 +16,19 @@
  * @see template_preprocess_user()
  */
 #}
+
+
 <article{{ attributes.addClass('profile') }}>
+
   {% if content %}
-    {{- content -}}
+    <span class="bg_img_wrapper"></span>
+    {{ content.user_picture }}
+    {{ content.field_name }}
+    {{ content.field_job_title }}
+    {{ content.field_about }}
+    <div class="user_social">
+      {{ content|without('user_picture', 'field_name', 'field_job_title', 'field_about') }}
+    </div>
+    
   {% endif %}
 </article>

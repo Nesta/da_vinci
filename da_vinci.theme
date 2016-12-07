@@ -8,6 +8,8 @@
 use Drupal\Core\Template\Attribute;
 use Drupal\file\Entity\File;
 use Drupal\user\Entity\User;
+use Drupal\Core\Render\Element;
+
 
 /**
  * Implements hook_preprocess_HOOK() for HTML document templates.
@@ -15,6 +17,22 @@ use Drupal\user\Entity\User;
  * Adds body classes if certain regions have content.
  */
 function da_vinci_preprocess_html(&$variables) {
+	
+	$is_front_page =  \Drupal::service('path.matcher')->isFrontPage();
+
+	// Delete final bar
+	if ($is_front_page) {
+		global $base_url;
+		
+		if (array_key_exists('#attached', $variables['page'])) {
+			foreach($variables['page']['#attached']['html_head'] as $key => $value) {
+				if ($value[1] == 'canonical_url') {
+					$variables['page']['#attached']['html_head'][$key][0]['#attributes']['href'] = $base_url;
+				}
+			}
+		}
+	}
+	
   $variables['html_attributes']['class']= 'no-grid';
   if (theme_get_setting('grid')) {
     $variables['html_attributes']['class'] = 'grid';
@@ -45,12 +63,19 @@ function da_vinci_preprocess_html(&$variables) {
     $variables['attributes']['class'][] = 'has-featured-top';
   }
 
+  $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  if (!empty($language)) {
+    $variables['attributes']['class'][] = 'lang-'. $language;
+  }
+
   $path = \Drupal::service('path.current')->getPath();
   $path_args = explode('/', $path);
   if (isset($path_args[1]) && isset($path_args[2]) && ($path_args[1] == 'node') && (is_numeric($path_args[2]))) {
     $variables['attributes']['class'][] = 'page-node-' . $path_args[2];
   }
-
+  if (isset($path_args[1]) && isset($path_args[2]) && ($path_args[1] == 'user') && (is_numeric($path_args[2]))) {
+    $variables['attributes']['class'][] = 'page-user-detail user-' . $path_args[2];
+  }
 }
 
 /**
@@ -183,4 +208,125 @@ function da_vinci_theme_suggestions_page_alter(array &$suggestions, array $varia
     $content_type = $node->bundle();
     $suggestions[] = 'page__'.$content_type;
   }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter().
+ */
+function da_vinci_theme_suggestions_image_formatter_alter(array &$suggestions, array $variables) {
+  $entity = $variables['item']->getEntity();
+  $field_name = $variables['item']->getParent()->getName();
+  $suggestions[] = 'image_formatter__' . $entity->getEntityTypeId() . '__' . $entity->bundle() . '__' . $field_name;
+}
+
+function da_vinci_preprocess_comment(&$variables) {
+  $comment = $variables['elements']['#comment'];
+  $commented_entity = $comment->getCommentedEntity();
+  $variables['comment'] = $comment;
+  $variables['commented_entity'] = $commented_entity;
+  $variables['threaded'] = $variables['elements']['#comment_threaded'];
+
+  $account = $comment->getOwner();
+  $username = array(
+    '#theme' => 'username',
+    '#account' => $account,
+  );
+  $variables['author'] = drupal_render($username);
+  $variables['author_id'] = $comment->getOwnerId();
+  $variables['new_indicator_timestamp'] = $comment->getChangedTime();
+  $variables['created'] = format_date($comment->getCreatedTime());
+  $variables['comment_id'] = $comment->id();
+  // Avoid calling format_date() twice on the same timestamp.
+  if ($comment->getChangedTime() == $comment->getCreatedTime()) {
+    $variables['changed'] = $variables['created'];
+  }
+  else {
+    $variables['changed'] = format_date($comment->getChangedTime());
+  }
+
+  if (theme_get_setting('features.comment_user_picture')) {
+    // To change user picture settings (for instance, image style), edit the
+    // 'compact' view mode on the User entity.
+    $variables['user_picture'] = user_view($account, 'compact');
+  }
+  else {
+    $variables['user_picture'] = array();
+  }
+
+  if (isset($comment->in_preview)) {
+    $variables['title'] = \Drupal::l($comment->getSubject(), new Url('<front>'));
+    $variables['permalink'] = \Drupal::l('#' . $comment->id(), new Url('<front>'));
+  }
+  else {
+    $uri = $comment->permalink();
+    $attributes = $uri->getOption('attributes') ? : array();
+    $attributes += array('class' => array('permalink'), 'rel' => 'bookmark');
+    $uri->setOption('attributes', $attributes);
+    $variables['title'] = \Drupal::l($comment->getSubject(), $uri);
+    $link_options = array(
+      'attributes' => array(
+        'class' => array(
+          'comment_perm_link',
+        ),
+      ),
+    );
+    $uri2 = $comment->permalink();
+    $uri2->setOptions($link_options);
+    $variables['permalink'] = \Drupal::l('#' . $comment->id(), $uri2);
+  }
+
+  $variables['submitted'] = t('Submitted by @username on @datetime', array('@username' => $variables['author'], '@datetime' => $variables['created']));
+
+  if ($comment->hasParentComment()) {
+    // Fetch and store the parent comment information for use in templates.
+    $comment_parent = $comment->getParentComment();
+    $account_parent = $comment_parent->getOwner();
+    $variables['parent_comment'] = $comment_parent;
+    $username = array(
+      '#theme' => 'username',
+      '#account' => $account_parent,
+    );
+    $variables['parent_author'] = drupal_render($username);
+    $variables['parent_created'] = format_date($comment_parent->getCreatedTime());
+    // Avoid calling format_date() twice on the same timestamp.
+    if ($comment_parent->getChangedTime() == $comment_parent->getCreatedTime()) {
+      $variables['parent_changed'] = $variables['parent_created'];
+    }
+    else {
+      $variables['parent_changed'] = format_date($comment_parent->getChangedTime());
+    }
+    $permalink_uri_parent = $comment_parent->permalink();
+    $attributes = $permalink_uri_parent->getOption('attributes') ? : array();
+    $attributes += array('class' => array('permalink'), 'rel' => 'bookmark');
+    $permalink_uri_parent->setOption('attributes', $attributes);
+    $variables['parent_title'] = \Drupal::l($comment_parent->getSubject(), $permalink_uri_parent);
+    $variables['parent_permalink'] = \Drupal::l(t('Parent permalink'), $permalink_uri_parent);
+    $variables['parent'] = t('In reply to @parent_title by @parent_username', 
+    array('@parent_username' => $variables['parent_author'], '@parent_title' => $variables['parent_title']));
+  }
+  else {
+    $variables['parent_comment'] = '';
+    $variables['parent_author'] = '';
+    $variables['parent_created'] = '';
+    $variables['parent_changed'] = '';
+    $variables['parent_title'] = '';
+    $variables['parent_permalink'] = '';
+    $variables['parent'] = '';
+  }
+
+  // Helpful $content variable for templates.
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+
+  // Set status to a string representation of comment->status.
+  if (isset($comment->in_preview)) {
+    $variables['status'] = 'preview';
+  }
+  else {
+    $variables['status'] = $comment->isPublished() ? 'published' : 'unpublished';
+  }
+
+  // Add comment author user ID. Necessary for the comment-by-viewer library.
+  $variables['attributes']['data-comment-user-id'] = $comment->getOwnerId();
 }

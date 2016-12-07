@@ -2,26 +2,22 @@ global-css:
   css:
     theme:
       css/main.css: {}
-      css/vendors/groundwork.css: {}
 
 global-js:
   header: true
   js:
     js/da-vinci.js: {}
     js/custom.js: {}
-    js/vendors/groundwork.all.js: {}
   dependencies:
     - core/jquery
     - core/modernizr
     - core/drupal
 
-globe:
+front:
   js:
-    js/globe/d3.v3.min.js: {}
-    js/globe/topojson.v1.min.js: {}
-    js/globe/queue.v1.min.js: {}
-    http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js: {}
-    js/globe/script.js: {}
+    js/front.js: {}
+  dependencies:
+    - core/jquery
     
 casestudy-menu:
   js:
@@ -32,6 +28,18 @@ casestudy-menu:
 services-animation:
   js:
     js/services-animation.js: {}
+  dependencies:
+    - core/jquery
+
+blog-menu:
+  js:
+    js/blog-menu.js: {}
+  dependencies:
+    - core/jquery
+
+contact-animation:
+  js:
+    js/contact-animation.js: {}
   dependencies:
     - core/jquery
 
